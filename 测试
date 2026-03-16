@@ -1,0 +1,518 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>数字底座-数据服务</title>
+    <style>
+        /* 母版样式（完全保留，无任何修改） */
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: "微软雅黑", "Microsoft Yahei", sans-serif;
+        }
+        body {
+            background: #fff;
+            overflow: hidden;
+        }
+        .header {
+            height: 50px;
+            background-color: #000033;
+            display: flex;
+            align-items: center;
+            padding: 0 10px;
+            color: #fff;
+        }
+        .logo {
+            display: flex;
+            align-items: center;
+            margin-right: 25px;
+        }
+        .logo-icon {
+            width: 22px;
+            height: 22px;
+            background-color: #ff0000;
+            border-radius: 50%;
+            margin-right: 6px;
+        }
+        .logo-text {
+            font-size: 15px;
+            font-weight: 500;
+        }
+        .nav-menu {
+            display: flex;
+            gap: 24px;
+        }
+        .nav-item {
+            font-size: 14px;
+            cursor: pointer;
+            height: 50px;
+            line-height: 50px;
+            padding: 0 2px;
+        }
+        .nav-item.active {
+            color: #0099ff;
+            border-bottom: 2px solid #0099ff;
+        }
+        .user-area {
+            margin-left: auto;
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            font-size: 14px;
+        }
+        .notify-icon, .user-avatar {
+            font-size: 16px;
+        }
+        .dropdown-icon {
+            font-size: 12px;
+        }
+        .sidebar {
+            width: 138px;
+            height: calc(100vh - 50px);
+            background-color: #000033;
+            color: #fff;
+            padding: 8px 0;
+            float: left;
+        }
+        .sidebar-toggle {
+            text-align: center;
+            padding: 4px 0;
+            cursor: pointer;
+            font-size: 12px;
+            margin-bottom: 8px;
+        }
+        .sidebar-menu-item {
+            display: flex;
+            align-items: center;
+            padding: 7px 12px;
+            font-size: 13px;
+            cursor: pointer;
+            position: relative;
+        }
+        .sidebar-menu-item.active {
+            background-color: #003366;
+            border-left: 3px solid #0099ff;
+        }
+        .menu-dot {
+            width: 7px;
+            height: 7px;
+            border-radius: 50%;
+            background-color: #fff;
+            margin-right: 7px;
+        }
+        .expand-arrow {
+            position: absolute;
+            right: 8px;
+            font-size: 10px;
+        }
+
+        /* 新增：数据服务功能区样式 */
+        .main-content {
+            margin-left: 138px;
+            height: calc(100vh - 50px);
+            background-color: #f8f9fa;
+            padding: 20px;
+            overflow-y: auto; /* 内容超出可滚动 */
+        }
+        /* 功能标题栏 */
+        .data-service-header {
+            font-size: 18px;
+            font-weight: 600;
+            color: #000033;
+            margin-bottom: 20px;
+            padding-bottom: 10px;
+            border-bottom: 1px solid #e0e0e0;
+        }
+        /* 核心操作区 - 三步流程布局 */
+        .data-service-container {
+            display: grid;
+            grid-template-columns: 1fr 1fr 1fr;
+            gap: 20px;
+            margin-bottom: 25px;
+        }
+        /* 步骤卡片 */
+        .step-card {
+            background: #fff;
+            border-radius: 8px;
+            padding: 15px;
+            box-shadow: 0 1px 3px rgba(0,0,0,0.1);
+        }
+        .step-title {
+            font-size: 15px;
+            font-weight: 600;
+            color: #000033;
+            margin-bottom: 12px;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+        .step-title span {
+            display: inline-block;
+            width: 24px;
+            height: 24px;
+            background-color: #0099ff;
+            color: #fff;
+            border-radius: 50%;
+            text-align: center;
+            line-height: 24px;
+            font-size: 12px;
+        }
+        /* 表单控件 */
+        .form-label {
+            font-size: 13px;
+            color: #333;
+            margin-bottom: 8px;
+            display: block;
+        }
+        .form-select, .form-input {
+            width: 100%;
+            height: 36px;
+            padding: 0 10px;
+            border: 1px solid #ddd;
+            border-radius: 4px;
+            font-size: 13px;
+            margin-bottom: 15px;
+        }
+        .form-textarea {
+            width: 100%;
+            min-height: 100px;
+            padding: 10px;
+            border: 1px solid #ddd;
+            border-radius: 4px;
+            font-size: 13px;
+            resize: vertical;
+            margin-bottom: 15px;
+        }
+        .btn {
+            padding: 8px 16px;
+            border-radius: 4px;
+            border: none;
+            font-size: 13px;
+            cursor: pointer;
+            transition: background-color 0.2s;
+        }
+        .btn-primary {
+            background-color: #0099ff;
+            color: #fff;
+        }
+        .btn-primary:hover {
+            background-color: #0088ee;
+        }
+        /* 结果展示区 */
+        .result-container {
+            background: #fff;
+            border-radius: 8px;
+            padding: 20px;
+            box-shadow: 0 1px 3px rgba(0,0,0,0.1);
+        }
+        .result-title {
+            font-size: 16px;
+            font-weight: 600;
+            color: #000033;
+            margin-bottom: 15px;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+        .result-tabs {
+            display: flex;
+            gap: 10px;
+            margin-bottom: 15px;
+            border-bottom: 1px solid #e0e0e0;
+            padding-bottom: 8px;
+        }
+        .result-tab {
+            font-size: 13px;
+            color: #666;
+            padding: 5px 12px;
+            cursor: pointer;
+            border-radius: 4px 4px 0 0;
+        }
+        .result-tab.active {
+            color: #0099ff;
+            font-weight: 600;
+            border-bottom: 2px solid #0099ff;
+        }
+        .result-content {
+            font-size: 13px;
+            color: #333;
+            background-color: #f8f9fa;
+            padding: 15px;
+            border-radius: 4px;
+            min-height: 200px;
+            font-family: "Consolas", "Monaco", monospace;
+            white-space: pre-wrap; /* 保留换行和空格 */
+        }
+        /* API展示样式 */
+        .api-info {
+            background-color: #e8f4ff;
+            padding: 12px;
+            border-radius: 4px;
+            margin-top: 10px;
+            font-size: 13px;
+        }
+        .api-url {
+            color: #0066cc;
+            font-weight: 600;
+            margin-bottom: 8px;
+        }
+        .api-method {
+            display: inline-block;
+            padding: 2px 8px;
+            background-color: #0099ff;
+            color: #fff;
+            border-radius: 2px;
+            font-size: 12px;
+            margin-right: 8px;
+        }
+    </style>
+</head>
+<body>
+    <!-- 母版：顶部导航（完全不变） -->
+    <div class="header">
+        <div class="logo">
+            <div class="logo-icon"></div>
+            <div class="logo-text">数字底座</div>
+        </div>
+        <div class="nav-menu">
+            <div class="nav-item">工作台</div>
+            <div class="nav-item">应用市场</div>
+            <div class="nav-item active">数据中台</div>
+            <div class="nav-item">文档库管理</div>
+            <div class="nav-item">用户中心</div>
+            <div class="nav-item">应用示例</div>
+            <div class="nav-item">设备管理</div>
+        </div>
+        <div class="user-area">
+            <span class="notify-icon">🔔</span>
+            <span class="user-avatar">●</span>
+            <span>张三</span>
+            <span class="dropdown-icon">▼</span>
+        </div>
+    </div>
+
+    <!-- 母版：侧边栏（完全不变） -->
+    <div class="sidebar">
+        <div class="sidebar-toggle">☰</div>
+        <div class="sidebar-menu-item active">
+            <div class="menu-dot"></div>
+            数据集成
+            <span class="expand-arrow">◀</span>
+        </div>
+        <div class="sidebar-menu-item">
+            <div class="menu-dot"></div>
+            数据集成概览
+        </div>
+        <div class="sidebar-menu-item">
+            <div class="menu-dot"></div>
+            数据源管理
+        </div>
+        <div class="sidebar-menu-item">
+            <div class="menu-dot"></div>
+            结构化数据采集
+        </div>
+        <div class="sidebar-menu-item">
+            <div class="menu-dot"></div>
+            非结构化数据采集
+        </div>
+        <div class="sidebar-menu-item">
+            <div class="menu-dot"></div>
+            集成作业
+        </div>
+        <div class="sidebar-menu-item">
+            <div class="menu-dot"></div>
+            时序数据采集
+        </div>
+        <div class="sidebar-menu-item">
+            <div class="menu-dot"></div>
+            实时数据采集
+        </div>
+        <!-- 新增侧边栏项：数据服务（不修改原有项，仅追加） -->
+        <div class="sidebar-menu-item" style="margin-top: 10px;">
+            <div class="menu-dot"></div>
+            数据服务
+        </div>
+    </div>
+
+    <!-- 新增：数据服务功能主内容区 -->
+    <div class="main-content">
+        <!-- 功能标题 -->
+        <div class="data-service-header">数据服务 - 数据表/报表快速封装API</div>
+
+        <!-- 核心操作三步流程 -->
+        <div class="data-service-container">
+            <!-- 步骤1：选择数据表 -->
+            <div class="step-card">
+                <div class="step-title"><span>1</span>选择数据表/报表</div>
+                <label class="form-label">数据源</label>
+                <select class="form-select">
+                    <option value="">请选择数据源</option>
+                    <option value="mysql_erp">MySQL - ERP系统</option>
+                    <option value="postgresql_bi">PostgreSQL - 数仓BI</option>
+                    <option value="excel_sales">Excel - 销售报表</option>
+                </select>
+                <label class="form-label">数据表/报表</label>
+                <select class="form-select">
+                    <option value="">请先选择数据源</option>
+                </select>
+            </div>
+
+            <!-- 步骤2：自然语言描述需求 -->
+            <div class="step-card">
+                <div class="step-title"><span>2</span>自然语言描述数据需求</div>
+                <label class="form-label">需求描述（示例：查询近30天销售额TOP10的门店，按销售额降序排列）</label>
+                <textarea class="form-textarea" placeholder="请输入你的数据需求..."></textarea>
+                <button class="btn btn-primary">生成脚本 & 生成API</button>
+            </div>
+
+            <!-- 步骤3：参数配置（可选） -->
+            <div class="step-card">
+                <div class="step-title"><span>3</span>API参数配置（可选）</div>
+                <label class="form-label">API名称</label>
+                <input type="text" class="form-input" placeholder="自定义API名称...">
+                <label class="form-label">访问权限</label>
+                <select class="form-select">
+                    <option value="public">公开（无需鉴权）</option>
+                    <option value="private">私有（Token鉴权）</option>
+                    <option value="role">按角色权限</option>
+                </select>
+                <label class="form-label">缓存时长</label>
+                <select class="form-select">
+                    <option value="0">不缓存</option>
+                    <option value="60">1分钟</option>
+                    <option value="300">5分钟</option>
+                    <option value="3600">1小时</option>
+                </select>
+            </div>
+        </div>
+
+        <!-- 结果展示区 -->
+        <div class="result-container">
+            <div class="result-title">生成结果</div>
+            <!-- 结果标签页：脚本/执行结果/API接口 -->
+            <div class="result-tabs">
+                <div class="result-tab active">自动化生成脚本</div>
+                <div class="result-tab">数据执行结果</div>
+                <div class="result-tab">最终API接口</div>
+            </div>
+            <!-- 脚本展示区（默认） -->
+            <div class="result-content">
+-- 等待生成SQL脚本...
+-- 示例（生成后展示）：
+SELECT
+    store_name,
+    SUM(sales_amount) AS total_sales
+FROM
+    sales_data
+WHERE
+    sales_date >= DATE_SUB(NOW(), INTERVAL 30 DAY)
+ORDER BY
+    total_sales DESC
+LIMIT 10;
+            </div>
+            <!-- API信息展示（默认隐藏，切换标签显示） -->
+            <div class="api-info" style="display: none;">
+                <div class="api-url"><span class="api-method">GET</span> /api/v1/data-service/sales-top10-stores</div>
+                <div>请求参数：无（或根据需求自动生成）</div>
+                <div>返回格式：JSON</div>
+                <div>调用示例：curl -X GET "https://api.your-domain.com/api/v1/data-service/sales-top10-stores" -H "Authorization: Bearer {token}"</div>
+            </div>
+        </div>
+    </div>
+
+    <!-- 简单交互脚本（模拟标签切换、选择联动） -->
+    <script>
+        // 标签切换
+        const tabs = document.querySelectorAll('.result-tab');
+        const resultContent = document.querySelector('.result-content');
+        const apiInfo = document.querySelector('.api-info');
+
+        tabs.forEach(tab => {
+            tab.addEventListener('click', () => {
+                // 移除所有激活态
+                tabs.forEach(t => t.classList.remove('active'));
+                // 当前标签激活
+                tab.classList.add('active');
+
+                // 切换内容
+                if (tab.textContent === '自动化生成脚本') {
+                    resultContent.style.display = 'block';
+                    apiInfo.style.display = 'none';
+                    resultContent.textContent = `-- 等待生成SQL脚本...
+-- 示例（生成后展示）：
+SELECT
+    store_name,
+    SUM(sales_amount) AS total_sales
+FROM
+    sales_data
+WHERE
+    sales_date >= DATE_SUB(NOW(), INTERVAL 30 DAY)
+ORDER BY
+    total_sales DESC
+LIMIT 10;`;
+                } else if (tab.textContent === '数据执行结果') {
+                    resultContent.style.display = 'block';
+                    apiInfo.style.display = 'none';
+                    resultContent.textContent = `[
+    {"store_name": "北京朝阳店", "total_sales": 1258900.50},
+    {"store_name": "上海浦东店", "total_sales": 1187650.80},
+    {"store_name": "广州天河店", "total_sales": 987620.30},
+    {"store_name": "深圳南山店", "total_sales": 956870.10},
+    {"store_name": "杭州西湖店", "total_sales": 897650.70},
+    {"store_name": "成都武侯店", "total_sales": 876540.20},
+    {"store_name": "重庆渝中店", "total_sales": 854320.90},
+    {"store_name": "武汉江汉店", "total_sales": 823450.40},
+    {"store_name": "南京秦淮店", "total_sales": 798760.60},
+    {"store_name": "西安雁塔店", "total_sales": 786540.50}
+]`;
+                } else if (tab.textContent === '最终API接口') {
+                    resultContent.style.display = 'none';
+                    apiInfo.style.display = 'block';
+                }
+            });
+        });
+
+        // 数据源选择联动（模拟）
+        const dataSourceSelect = document.querySelectorAll('.form-select')[0];
+        const tableSelect = document.querySelectorAll('.form-select')[1];
+
+        dataSourceSelect.addEventListener('change', () => {
+            const value = dataSourceSelect.value;
+            tableSelect.innerHTML = '';
+
+            if (value === 'mysql_erp') {
+                tableSelect.innerHTML = `
+                    <option value="sales_data">销售数据表(sales_data)</option>
+                    <option value="store_info">门店信息表(store_info)</option>
+                    <option value="user_info">用户信息表(user_info)</option>
+                `;
+            } else if (value === 'postgresql_bi') {
+                tableSelect.innerHTML = `
+                    <option value="bi_sales_analysis">销售分析表(bi_sales_analysis)</option>
+                    <option value="bi_user_portrait">用户画像表(bi_user_portrait)</option>
+                `;
+            } else if (value === 'excel_sales') {
+                tableSelect.innerHTML = `
+                    <option value="sales_report_2024">2024销售报表.xlsx</option>
+                    <option value="sales_report_2023">2023销售报表.xlsx</option>
+                `;
+            } else {
+                tableSelect.innerHTML = '<option value="">请先选择数据源</option>';
+            }
+        });
+
+        // 生成按钮点击模拟
+        const generateBtn = document.querySelector('.btn-primary');
+        generateBtn.addEventListener('click', () => {
+            // 模拟生成中提示
+            resultContent.textContent = '-- 大模型正在生成脚本，请稍候...';
+            // 3秒后展示结果
+            setTimeout(() => {
+                tabs[0].click(); // 切回脚本标签
+            }, 1000);
+        });
+    </script>
+</body>
+</html>
